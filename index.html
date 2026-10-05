@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitar Note Mastery</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#eee;font-family:Arial,sans-serif}
+.app{max-width:520px;margin:auto;padding:12px}
+h1{text-align:center}
+.card{background:#1d1d1d;border-radius:16px;padding:15px;margin:12px 0}
+button{width:100%;padding:13px;border:0;border-radius:10px;background:#2d6cdf;color:white;font-size:16px;margin:5px 0}
+button.done{background:#198754}
+.small{color:#aaa}
+.notes span{display:inline-block;background:#333;padding:7px;margin:3px;border-radius:8px}
+.progress{height:12px;background:#333;border-radius:10px}
+.bar{height:100%;background:#2d6cdf;border-radius:10px}
+.timer{font-size:38px;text-align:center}
+.fretboard{overflow:hidden;background:#252525;padding:10px;border-radius:12px}
+.string{display:flex;gap:4px;margin:4px 0}
+.fret{min-width:42px;height:34px;background:#333;border-radius:5px;text-align:center;padding-top:8px;font-size:13px}
+.active{background:#2d6cdf}
+.section{white-space:pre-line;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>🎸 Guitar Note Mastery</h1>
+
+<div class="card">
+<div class="progress"><div id="bar" class="bar"></div></div>
+<p id="status"></p>
+</div>
+
+<div class="card" id="lesson"></div>
+
+<div class="card">
+<h2>⏱ Practice Timer</h2>
+<div class="timer" id="timer">03:00</div>
+<button onclick="startTimer()">Start Timer</button>
+<button onclick="resetTimer()">Reset Timer</button>
+</div>
+
+<div class="card">
+<h2>Interactive First 12 Frets</h2>
+<p class="small">Use this on Day One to identify the 1st string notes. Tap notes and say the name out loud.</p>
+<div id="board" class="fretboard"></div>
+</div>
+
+<div class="card">
+<h2>Random Note Challenge</h2>
+<button onclick="quiz()">Find A Random Note</button>
+<div id="quiz"></div>
+</div>
+
+</div>
+
+<script>
+const days=[
+["Day One","Learn 1st string natural notes.\n\n3 min: Play E F G A B C D E and say names aloud.\n\nThen backwards. Then out of order.\n\n5 min: Play over backing track slowly. One finger only. Say every note name.","1st String","E F G A B C D E"],
+["Day Two","Review 1st string.\n\n1 min review.\n3 min learn 2nd string.\n5 min solo on 2nd string while naming notes.","2nd String","B C D E F G A B"],
+["Day Three","Review 2nd string.\nLearn 3rd string.\nPractice ascending, descending, and random order.","3rd String","G A B C D E F G"],
+["Day Four","Review 3rd string.\nLearn 4th string.\nUse timer and say names aloud.","4th String","D E F G A B C D"],
+["Day Five","Review 4th string.\nLearn 5th string.\nSolo slowly and name notes.","5th String","A B C D E F G A"],
+["Day Six","Review 5th string.\nLearn 6th string.\nRemember: the 6th string is the same notes as the 1st string.","6th String","E F G A B C D E"],
+["Day Seven","Review 5th, 6th and 1st strings.\n\n1 minute each review.\n2 minutes each solo.\nThen all strings.","Review","A E E"],
+["Day Eight","Review 6th, 1st and 2nd strings.\n\nSolo slowly and think note names.","Review","E E B"],
+["Day Nine","Review 1st, 2nd and 3rd strings.\n\nKeep building the neck map.","Review","E B G"],
+["Day Ten","Review all six strings.\n\nTake a victory lap across the neck.","Full Neck","All Natural Notes"],
+["Day Eleven","Begin accidental notes.\n\nLearn sharps and flats after natural notes are automatic.","Sharps & Flats","# ♭"]
+];
+
+let day=Number(localStorage.day)||0;
+
+function render(){
+ let d=days[day];
+ lesson.innerHTML=`<h2>${d[0]}</h2>
+ <div class='section'>${d[1]}</div>
+ <h3>${d[2]}</h3>
+ <div class='notes'>${d[3].split(" ").map(x=>`<span>${x}</span>`).join("")}</div>
+ <button class='done' onclick='next()'>Complete ${d[0]}</button>`;
+ bar.style.width=((day+1)/days.length*100)+"%";
+ status.innerHTML=d[0]+" of 11";
+ drawBoard();
+}
+
+function next(){
+ if(day<10)day++;
+ localStorage.day=day;
+ render();
+}
+
+function drawBoard(){
+ let notes=["E","F","G","A","B","C","D","E","F","G","A","B","C"];
+ board.innerHTML="";
+ let row=document.createElement("div");
+ row.className="string";
+ notes.forEach((n,i)=>{
+ row.innerHTML+=`<div class="fret" onclick="alert('${n} - fret ${i}')">${n}<br>${i}</div>`;
+ });
+ board.appendChild(row);
+}
+
+let sec=180,timer;
+function startTimer(){
+ clearInterval(timer);
+ timer=setInterval(()=>{
+ if(sec<=0){clearInterval(timer);return}
+ sec--; timerText();
+ },1000);
+}
+function timerText(){
+ let m=Math.floor(sec/60),s=sec%60;
+ timerEl=document.getElementById("timer");
+ timerEl.innerHTML=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+function resetTimer(){sec=180;timerText()}
+
+function quiz(){
+ let n=["A","B","C","D","E","F","G"][Math.floor(Math.random()*7)];
+ quizBox=document.getElementById("quiz");
+ quizBox.innerHTML=`<h2>Find: ${n}</h2><p>Say the answer before touching the fretboard.</p>`;
+}
+
+render();
+</script>
+</body>
+</html>
